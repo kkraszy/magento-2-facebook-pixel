@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="head.additional">
+            <block name="kkkonrad.fbpixel"
+                   template="Kkkonrad_FacebookPixel::pixel.phtml"
+                   ifconfig="kkkonrad_fbpixel/general/enabled"
+                   after="head.hyva-scripts">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Kkkonrad\FacebookPixel\ViewModel\Pixel</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

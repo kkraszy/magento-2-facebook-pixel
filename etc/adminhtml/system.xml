@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <!-- Declared in every Kkkonrad module so each one works on its own. -->
+        <tab id="kkkonrad" translate="label" sortOrder="999998">
+            <label>Kkkonrad</label>
+        </tab>
+        <section id="kkkonrad_fbpixel" translate="label" sortOrder="510" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Meta (Facebook) Pixel</label>
+            <tab>kkkonrad</tab>
+            <resource>Kkkonrad_FacebookPixel::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Pixel and Conversions API</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="pixel_id" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Pixel ID</label>
+                    <validate>required-entry validate-digits</validate>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+                <field id="access_token" translate="label comment" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Conversions API access token</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <comment>Events Manager → Settings → Conversions API → Generate access token. Leave empty to send browser events only.</comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+                <field id="test_event_code" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Test event code</label>
+                    <comment>From Events Manager → Test events (e.g. TEST12345). Clear it before going live.</comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

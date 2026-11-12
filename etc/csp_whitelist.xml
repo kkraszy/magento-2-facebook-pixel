@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!-- Checkout enforces CSP since 2.4.7; without this the pixel is blocked there. -->
+<csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp:etc/csp_whitelist.xsd">
+    <policies>
+        <policy id="script-src">
+            <values>
+                <value id="fbpixel-script" type="host">https://connect.facebook.net</value>
+            </values>
+        </policy>
+        <policy id="connect-src">
+            <values>
+                <value id="fbpixel-connect" type="host">https://www.facebook.com</value>
+                <value id="fbpixel-connect-net" type="host">https://connect.facebook.net</value>
+            </values>
+        </policy>
+        <policy id="img-src">
+            <values>
+                <value id="fbpixel-img" type="host">https://www.facebook.com</value>
+            </values>
+        </policy>
+        <policy id="frame-src">
+            <values>
+                <value id="fbpixel-frame" type="host">https://www.facebook.com</value>
+            </values>
+        </policy>
+    </policies>
+</csp_whitelist>

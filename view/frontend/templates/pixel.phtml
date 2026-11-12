@@ -1,0 +1,89 @@
+<?php
+/**
+ * Meta Pixel base code plus every browser-side event.
+ *
+ * Loads only after cookie consent when Magento's cookie restriction mode is on
+ * (same gate as Hyvä's GA template). Server-queued events arrive through the
+ * `fbpixel` customer-data section; Hyvä re-dispatches stored sections on every
+ * page, so fired event ids are remembered to avoid sending one twice.
+ */
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Kkkonrad\FacebookPixel\ViewModel\Pixel;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+/** @var Pixel $pixel */
+$pixel = $block->getData('view_model');
+$config = $pixel->getConfig(!$block->getLayout()->isCacheable());
+if ($config['pixelId'] === '') {
+    return;
+}
+?>
+<script>
+    (() => {
+        const config = <?= /* @noEscape */ json_encode($config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        const FIRED_KEY = 'fbpixel-fired';
+        const waiting = [];
+        let started = false;
+
+        const allowed = () => {
+            if (!config.restricted) return true;
+            try {
+                const cookie = hyva.getCookie(config.cookieName);
+                return cookie !== null && JSON.parse(unescape(cookie))[config.websiteId] === 1;
+            } catch (e) {
+                return false;
+            }
+        };
+
+        const log = (...args) => config.debug && console.log('%c[Meta Pixel]', 'color:#1877f2;font-weight:bold', ...args);
+
+        const send = (e) => {
+            fbq(e.custom ? 'trackCustom' : 'track', e.name, e.data || {}, e.id ? {eventID: e.id} : undefined);
+            log(e.name, e.data || {}, e.id ? `eventID ${e.id} · CAPI: ${e.capi}` : 'browser only');
+        };
+
+        const start = () => {
+            if (started || !allowed()) return;
+            started = true;
+            !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+            n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+            document,'script','https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', config.pixelId);
+            fbq('track', 'PageView');
+            log('init', config.pixelId, '· PageView');
+            config.page.forEach(send);
+            waiting.splice(0).forEach(send);
+        };
+
+        window.addEventListener('private-content-loaded', (event) => {
+            const events = event.detail.data?.fbpixel?.events || [];
+            if (!events.length) return;
+            const storage = hyva.getBrowserStorage();
+            let fired = [];
+            try { fired = JSON.parse(storage?.getItem(FIRED_KEY) || '[]'); } catch (e) {}
+            events.filter((e) => !fired.includes(e.id)).forEach((e) => {
+                fired.push(e.id);
+                started ? send(e) : waiting.push(e);
+            });
+            storage?.setItem(FIRED_KEY, JSON.stringify(fired.slice(-50)));
+        });
+
+        if (allowed()) {
+            start();
+        } else {
+            log('waiting for cookie consent');
+            window.addEventListener('user-allowed-save-cookie', start, {once: true});
+        }
+    })();
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>
+<noscript><img height="1" width="1" style="display:none" alt=""
+    src="https://www.facebook.com/tr?id=<?= $block->escapeUrl($config['pixelId']) ?>&amp;ev=PageView&amp;noscript=1"/></noscript>

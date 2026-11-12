@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="checkout_cart_product_add_after">
+        <observer name="kkkonrad_fbpixel" instance="Kkkonrad\FacebookPixel\Observer\Track"/>
+    </event>
+    <event name="controller_action_predispatch_checkout_index_index">
+        <observer name="kkkonrad_fbpixel" instance="Kkkonrad\FacebookPixel\Observer\Track"/>
+    </event>
+    <event name="checkout_onepage_controller_success_action">
+        <observer name="kkkonrad_fbpixel" instance="Kkkonrad\FacebookPixel\Observer\Track"/>
+    </event>
+    <event name="customer_register_success">
+        <observer name="kkkonrad_fbpixel" instance="Kkkonrad\FacebookPixel\Observer\Track"/>
+    </event>
+    <event name="wishlist_add_product">
+        <observer name="kkkonrad_fbpixel" instance="Kkkonrad\FacebookPixel\Observer\Track"/>
+    </event>
+</config>
